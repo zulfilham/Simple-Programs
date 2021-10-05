@@ -16,7 +16,7 @@ function main() {
    local keyref="YOUR KEY REFERENCE FILE";
    read_encryption_key "Enter encryption key: ";
    echo "*** Encrypting file contents ***" 1>&2;
-   echo -n "$ENCRYPTION_KEY" | ccencrypt --verbose --force --strictsuffix --recursive --keyref="$keyref" --keyfile=- -- "${@%/}";
+   echo -n "$ENCRYPTION_KEY" | ccencrypt --verbose --force --strictsuffix --recursive --keyref="$keyref" --keyfile=- -- "${@-.}";
    local exit_code=$?;
 
    if ((exit_code == 0)); then

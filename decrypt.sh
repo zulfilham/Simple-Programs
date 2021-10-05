@@ -49,7 +49,7 @@ function main() {
       done < <(find "$path" -mindepth 1 -name .cpt -print0 | sort --zero --reverse);
    done;
    echo $'\n*** Decrypting file contents ***' 1>&2;
-   echo -n "$ENCRYPTION_KEY" | ccdecrypt --verbose --force --recursive --keyfile=- -- "${@%/}";
+   echo -n "$ENCRYPTION_KEY" | ccdecrypt --verbose --force --recursive --keyfile=- -- "${@-.}";
 }
 
 main "${@/#-/.\/-}";
