@@ -31,4 +31,4 @@ function main() {
    done < <(find "$@" -mindepth 1 -name .cpt -print0);
 }
 
-main "$@";
+main "${@/#-/.\/-}";

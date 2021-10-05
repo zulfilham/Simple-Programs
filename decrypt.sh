@@ -50,4 +50,4 @@ function main() {
    echo -n "$ENCRYPTION_KEY" | ccdecrypt --verbose --force --recursive --keyfile=- -- "${@%/}";
 }
 
-main "$@";
+main "${@/#-/.\/-}";
