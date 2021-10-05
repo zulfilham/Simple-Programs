@@ -14,7 +14,7 @@ function read_encryption_key() {
 
 function main() {
    read_encryption_key "Enter encryption key: ";
-   echo "*** Encrypting file contents ***";
+   echo "*** Encrypting file contents ***" 1>&2;
    echo -n "$ENCRYPTION_KEY" | ccencrypt --verbose --force --strictsuffix --recursive --keyref ~/encryption_key.old.cpt --keyfile=- -- "${@%/}";
    local exit_code=$?;
 
@@ -32,7 +32,7 @@ function main() {
          done;
       done < <(find "$@" -mindepth 1 -name .cpt -exec cat {} +);
 
-      echo $'\n*** Encrypting file names ***';
+      echo $'\n*** Encrypting file names ***' 1>&2;
 
       for cpt_suffixed_filename in "${cpt_suffixed_filenames[@]}"; do
          dirname="${cpt_suffixed_filename%/*}"; [ "$cpt_suffixed_filename" == "$dirname" ] && dirname=.;
@@ -42,7 +42,7 @@ function main() {
             base64_encrypted_basename=$(ccencrypt --force --envvar=ENCRYPTION_KEY <<< "$basename" | base64 --wrap=0);
             echo $base64_encrypted_basename >> "$dirname/.cpt";
             digest=($(xxh128sum <<< $base64_encrypted_basename));
-            mv --verbose -- "$cpt_suffixed_filename" "$dirname"/${digest[0]}$([ ! -d "$cpt_suffixed_filename" ] && echo -n .cpt);
+            mv --verbose -- "$cpt_suffixed_filename" "$dirname"/${digest[0]}$([ ! -d "$cpt_suffixed_filename" ] && echo -n .cpt) 1>&2;
          fi;
       done;
    else

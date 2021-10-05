@@ -14,7 +14,7 @@ function read_encryption_key() {
 
 function main() {
    read_encryption_key "Enter decryption key: ";
-   echo "*** Decrypting file names ***";
+   echo "*** Decrypting file names ***" 1>&2;
    local cpt_suffixed_filenames=() path base64_encrypted_basename decrypted_basename exit_code digest dirname basename;
 
    while read -d $'\0'; do
@@ -35,7 +35,7 @@ function main() {
                   basename="${cpt_suffixed_filenames[i]##*/}";
 
                   if [ "${basename%.cpt}" == ${digest[0]} ]; then
-                     mv --verbose -- "$dirname/"${digest[0]}* "$dirname/${decrypted_basename%$'\n'}";
+                     mv --verbose -- "$dirname/"${digest[0]}* "$dirname/${decrypted_basename%$'\n'}" 1>&2;
                      sed --in-place "/${base64_encrypted_basename//\//\\\/}/d" -- "$dirname/.cpt";
                      unset cpt_suffixed_filenames[i];
                      break;
@@ -48,7 +48,7 @@ function main() {
          if [ ! -s "$REPLY" ]; then rm --force -- "$REPLY"; fi;
       done < <(find "$path" -mindepth 1 -name .cpt -print0 | sort --zero --reverse);
    done;
-   echo $'\n*** Decrypting file contents ***';
+   echo $'\n*** Decrypting file contents ***' 1>&2;
    echo -n "$ENCRYPTION_KEY" | ccdecrypt --verbose --force --recursive --keyfile=- -- "${@%/}";
 }
 
