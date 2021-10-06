@@ -22,7 +22,7 @@ function main() {
    if ((exit_code == 0)); then
       local cpt_suffixed_filenames=() basename_digests=() base64_encrypted_basename digest cpt_suffixed_filename dirname basename;
 
-      while read -d $'\0'; do
+      while read -rd $'\0'; do
          cpt_suffixed_filenames+=("$REPLY");
       done < <(find "$@" -mindepth 1 -depth \( -name \*.cpt -and \! -name .cpt -or -type d \) -print0);
 
@@ -36,10 +36,10 @@ function main() {
       echo $'\n*** Encrypting file names ***' 1>&2;
 
       for cpt_suffixed_filename in "${cpt_suffixed_filenames[@]}"; do
-         dirname="${cpt_suffixed_filename%/*}"; [ "$cpt_suffixed_filename" == "$dirname" ] && dirname=.;
-         basename="${cpt_suffixed_filename##*/}";
+         dirname="${cpt_suffixed_filename%[/\\]*}"; [ "$cpt_suffixed_filename" == "$dirname" ] && dirname=.;
+         basename="${cpt_suffixed_filename##*[/\\]}";
 
-         if ! [[ "${basename_digests[@]}" == *${basename%.cpt}* ]]; then
+         if ! [[ "${basename_digests[@]}" == *"${basename%.cpt}"* ]]; then
             base64_encrypted_basename=$(ccencrypt --force --envvar=ENCRYPTION_KEY <<< "$basename" | base64 --wrap=0);
             echo $base64_encrypted_basename >> "$dirname/.cpt";
             digest=($(xxh128sum <<< $base64_encrypted_basename));

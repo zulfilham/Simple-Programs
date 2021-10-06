@@ -17,12 +17,12 @@ function main() {
    echo "*** Decrypting file names ***" 1>&2;
    local cpt_suffixed_filenames=() path base64_encrypted_basename decrypted_basename exit_code digest dirname basename;
 
-   while read -d $'\0'; do
+   while read -rd $'\0'; do
       cpt_suffixed_filenames+=("$REPLY");
    done < <(find "$@" -mindepth 1 -depth \( -name \*.cpt -and \! -name .cpt -or -type d \) -print0);
 
    for path in "${@-.}"; do
-      while read -d $'\0'; do
+      while read -rd $'\0'; do
          for base64_encrypted_basename in $(cat "$REPLY"); do
             decrypted_basename="$(base64 --decode <<< $base64_encrypted_basename | ccat --envvar=ENCRYPTION_KEY)";
             exit_code=$?;
@@ -31,8 +31,8 @@ function main() {
                digest=($(xxh128sum <<< $base64_encrypted_basename));
 
                for i in "${!cpt_suffixed_filenames[@]}"; do
-                  dirname="${cpt_suffixed_filenames[i]%/*}"; [ "${cpt_suffixed_filenames[i]}" == "$dirname" ] && dirname=.;
-                  basename="${cpt_suffixed_filenames[i]##*/}";
+                  dirname="${cpt_suffixed_filenames[i]%[/\\]*}"; [ "${cpt_suffixed_filenames[i]}" == "$dirname" ] && dirname=.;
+                  basename="${cpt_suffixed_filenames[i]##*[/\\]}";
 
                   if [ "${basename%.cpt}" == ${digest[0]} ]; then
                      mv --verbose -- "$dirname/"${digest[0]}* "$dirname/${decrypted_basename%$'\n'}" 1>&2;
